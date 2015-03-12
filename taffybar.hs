@@ -1,6 +1,10 @@
 import System.Taffybar
 
 import System.Taffybar.TaffyPager
+import System.Taffybar.Pager
+import System.Taffybar.WindowSwitcher
+import System.Taffybar.WorkspaceSwitcher
+
 import System.Taffybar.Battery
 import System.Taffybar.SimpleClock
 import System.Taffybar.Systray
@@ -12,10 +16,20 @@ import System.Taffybar.Widgets.PollingGraph
 import System.Information.Memory
 import System.Information.CPU
 
+
+pagerCfg = defaultPagerConfig
+    { emptyWorkspace = colorize "#6b6b6b" "" . escape
+    , activeWorkspace  = colorize "#429942" "" . escape . wrap "<" ">"
+    }
+
 main = do
-    let clock = textClockNew Nothing "<span fgcolor='orange'>%a %b %_d %H:%M</span>" 1
-        pager = taffyPagerNew defaultPagerConfig
-        mpris = mprisNew
+    pager <- pagerNew pagerCfg
+
+    let wss = wspaceSwitcherNew pager
+        wnd = windowSwitcherNew pager
+
+        clock = textClockNew Nothing "<span fgcolor='orange'>%a %b %_d %H:%M</span>" 1
+        mpris = mpris2New
         battery = textBatteryNew "$percentage$%/$time$" 60
         tray = systrayNew
       
@@ -43,6 +57,6 @@ main = do
 
     defaultTaffybar defaultTaffybarConfig
         { barHeight = 20
-        , startWidgets = [pager]
+        , startWidgets = [wss, wnd]
         , endWidgets = reverse [mpris, cpu, mem, battery, clock, tray]
         }
