@@ -231,9 +231,10 @@ mark :: Desktop            -- ^ List of all available labels.
 mark desktop decorate idx = do
   let ws = desktop !! idx
   postGUIAsync $ labelSetMarkup (label ws) $ decorate' (name ws)
-  where decorate' = pad . decorate
-        pad m | m == [] = m
-              | otherwise = ' ' : m
+  where decorate' = pad . decorate . index
+        pad m | null m = m
+              | otherwise = m ++ " "
+        index m = show (idx + 1) ++ '.' : m
 
 -- | Switch to the workspace with the given index.
 switch :: (MonadIO m) => Int -> m Bool
