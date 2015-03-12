@@ -246,7 +246,7 @@ switch idx = do
 kill :: (MonadIO m) => Int -> m ()
 kill idx = liftIO $ withDefaultCtx $ do
   cmd <- getAtom "XMONAD_KILLWKSP"
-  sendCommandEvent cmd (fromIntegral (10 * idx))
+  sendCommandEvent cmd (fromIntegral idx)
 
 -- | Modify the Desktop inside the given IORef, so that the Workspace at the
 -- given index has its "urgent" flag set to the given value.
