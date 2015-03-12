@@ -27,7 +27,7 @@ pagerCfg = defaultPagerConfig
     }
 
 main = do
-    scr <- lookupEnv "TAFFY_SCREEN"
+    scr <- lookupEnv "TAFFY_SCREEN" >>= return . maybe 0 read
 
     pager <- pagerNew pagerCfg
 
@@ -64,7 +64,9 @@ main = do
 
     defaultTaffybar defaultTaffybarConfig
         { barHeight = 20
+        , monitorNumber = scr
         , startWidgets = [wss, wnd]
-        , endWidgets = reverse [mpris, vol, cpu, mem, battery, clock, tray]
-        , monitorNumber = maybe 0 read scr
+        , endWidgets = reverse $ if scr == 0
+            then [mpris, vol, cpu, mem, battery, clock, tray]
+            else [clock]
         }
