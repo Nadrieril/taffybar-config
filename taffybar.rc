@@ -1,0 +1,23 @@
+gtk_color_scheme = "black:#000000\nwhite:#FFFFFF\ngreen:#00FF00\nred:#FF0000"
+
+style "taffybar" {
+    font_name    = "Mono Bold 10"
+    fg[NORMAL]   = @white
+    bg[NORMAL]   = @black
+    text[NORMAL] = @white
+    fg[PRELIGHT] = @green
+    bg[PRELIGHT] = @black
+}
+
+style "active-window" = "taffybar" {
+    fg[NORMAL] = @green
+}
+
+style "notification-button" = "taffybar" {
+    text[NORMAL] = @red
+    fg[NORMAL]   = @red
+}
+
+widget "Taffybar*" style "taffybar"
+widget "Taffybar*WindowSwitcher*label" style "active-window"
+widget "*NotificationCloseButton" style "notification-button"
