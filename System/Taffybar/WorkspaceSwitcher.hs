@@ -35,6 +35,7 @@ import Graphics.X11.Xlib.Extras
 
 import System.Taffybar.Pager
 import System.Information.EWMHDesktopInfo
+import System.Information.X11DesktopInfo
 
 type Desktop = [Workspace]
 data Workspace = Workspace { label  :: Label
@@ -180,6 +181,7 @@ toLabels = mapM labelNewMarkup
           labelSetMarkup lbl markup
           return lbl
 
+
 -- | Build a new clickable event box containing the Label widget that
 -- corresponds to the given index, and add it to the given container.
 addButton :: BoxClass self
@@ -193,9 +195,16 @@ addButton hbox desktop idx = do
   ebox <- eventBoxNew
   widgetSetName ebox $ name index
   eventBoxSetVisibleWindow ebox False
-  _ <- on ebox buttonPressEvent $ switch idx
+  -- _ <- on ebox buttonPressEvent $ switch idx
+  void $ (ebox `on` buttonPressEvent) $ tryEvent $ do
+    LeftButton <- eventButton
+    void $ switch idx
+  void $ (ebox `on` buttonPressEvent) $ tryEvent $ do
+    MiddleButton <- eventButton
+    kill idx
   containerAdd ebox lbl
   boxPackStart hbox ebox PackNatural 0
+
 
 -- | Re-mark all workspace labels.
 transition :: PagerConfig -- ^ Configuration settings.
@@ -231,6 +240,12 @@ switch :: (MonadIO m) => Int -> m Bool
 switch idx = do
   liftIO $ withDefaultCtx (switchToWorkspace idx)
   return True
+
+-- | Kill the workspace with the given index.
+kill :: (MonadIO m) => Int -> m ()
+kill idx = liftIO $ withDefaultCtx $ do
+  cmd <- getAtom "XMONAD_KILLWKSP"
+  sendCommandEvent cmd (fromIntegral (10 * idx))
 
 -- | Modify the Desktop inside the given IORef, so that the Workspace at the
 -- given index has its "urgent" flag set to the given value.
