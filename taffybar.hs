@@ -1,3 +1,6 @@
+import System.Environment (lookupEnv)
+import Data.Maybe (fromMaybe)
+
 import System.Taffybar
 
 import System.Taffybar.TaffyPager
@@ -24,6 +27,8 @@ pagerCfg = defaultPagerConfig
     }
 
 main = do
+    scr <- lookupEnv "TAFFY_SCREEN"
+
     pager <- pagerNew pagerCfg
 
     let wss = wspaceSwitcherNew pager
@@ -61,4 +66,5 @@ main = do
         { barHeight = 20
         , startWidgets = [wss, wnd]
         , endWidgets = reverse [mpris, vol, cpu, mem, battery, clock, tray]
+        , monitorNumber = maybe 0 read scr
         }
