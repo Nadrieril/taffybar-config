@@ -16,6 +16,7 @@ import System.Taffybar.Widgets.PollingGraph
 import System.Information.Memory
 import System.Information.CPU
 
+import System.Taffybar.Volume
 
 pagerCfg = defaultPagerConfig
     { emptyWorkspace = colorize "#6b6b6b" "" . escape
@@ -32,7 +33,8 @@ main = do
         mpris = mpris2New
         battery = textBatteryNew "$percentage$%/$time$" 60
         tray = systrayNew
-      
+        vol = volumeW
+
         mem = pollingGraphNew memCfg 1 memCallback
             where
                 memCallback = do
@@ -58,5 +60,5 @@ main = do
     defaultTaffybar defaultTaffybarConfig
         { barHeight = 20
         , startWidgets = [wss, wnd]
-        , endWidgets = reverse [mpris, cpu, mem, battery, clock, tray]
+        , endWidgets = reverse [mpris, vol, cpu, mem, battery, clock, tray]
         }
