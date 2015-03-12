@@ -26,7 +26,10 @@ module System.Taffybar.WindowSwitcher (
 ) where
 
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad (forM_)
+import Control.Monad (forM_, unless)
+import Control.Applicative ((<$>))
+import System.Environment (lookupEnv)
+
 import Graphics.UI.Gtk
 import Graphics.X11.Xlib.Extras (Event)
 import System.Information.EWMHDesktopInfo
@@ -107,13 +110,15 @@ assembleWidget label = do
   _ <- title `on` scrollEvent $ tryEvent $ do
     ScrollUp <- eventScrollDirection
     liftIO $ withDefaultCtx $ do
+      scr <- liftIO $ maybe 0 read <$> lookupEnv "TAFFY_SCREEN"
       cmd <- getAtom "XMONAD_FOCUSUP"
-      sendCommandEvent cmd 0
+      sendCommandEvent cmd (100 * scr)
   _ <- title `on` scrollEvent $ tryEvent $ do
     ScrollDown <- eventScrollDirection
     liftIO $ withDefaultCtx $ do
+      scr <- liftIO $ maybe 0 read <$> lookupEnv "TAFFY_SCREEN"
       cmd <- getAtom "XMONAD_FOCUSDOWN"
-      sendCommandEvent cmd 0
+      sendCommandEvent cmd (100 * scr)
 
   widgetShowAll switcher
   return $ toWidget switcher
@@ -122,7 +127,7 @@ assembleWidget label = do
 fillMenu :: MenuClass menu => menu -> IO ()
 fillMenu menu = do
   handles  <- withDefaultCtx getWindowHandles
-  if null handles then return () else do
+  unless (null handles) $ do
     wsNames  <- withDefaultCtx getWorkspaceNames
     forM_ handles $ \handle -> do
       item <- menuItemNewWithLabel (formatEntry wsNames handle)
