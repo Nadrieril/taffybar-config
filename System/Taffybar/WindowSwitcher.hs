@@ -25,10 +25,12 @@ module System.Taffybar.WindowSwitcher (
   windowSwitcherNew
 ) where
 
+import Control.Monad.IO.Class (liftIO)
 import Control.Monad (forM_)
 import Graphics.UI.Gtk
 import Graphics.X11.Xlib.Extras (Event)
 import System.Information.EWMHDesktopInfo
+import System.Information.X11DesktopInfo
 import System.Taffybar.Pager
 
 -- $usage
@@ -100,8 +102,18 @@ assembleWidget label = do
   widgetSetName menuTop "Taffybar_WindowSwitcher"
 
   menuItemSetSubmenu title menu
-  _ <- on title menuItemActivate $ fillMenu  menu
-  _ <- on title menuItemDeselect $ emptyMenu menu
+  _ <- title `on` menuItemActivate $ fillMenu  menu
+  _ <- title `on` menuItemDeselect $ emptyMenu menu
+  _ <- title `on` scrollEvent $ tryEvent $ do
+    ScrollUp <- eventScrollDirection
+    liftIO $ withDefaultCtx $ do
+      cmd <- getAtom "XMONAD_FOCUSUP"
+      sendCommandEvent cmd 0
+  _ <- title `on` scrollEvent $ tryEvent $ do
+    ScrollDown <- eventScrollDirection
+    liftIO $ withDefaultCtx $ do
+      cmd <- getAtom "XMONAD_FOCUSDOWN"
+      sendCommandEvent cmd 0
 
   widgetShowAll switcher
   return $ toWidget switcher
