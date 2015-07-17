@@ -21,13 +21,15 @@ import System.Information.CPU
 
 import System.Taffybar.Volume
 
+import Control.Applicative ((<$>))
+
 pagerCfg = defaultPagerConfig
     { emptyWorkspace = colorize "#6b6b6b" "" . escape
     , activeWorkspace  = colorize "#429942" "" . escape . wrap "<" ">"
     }
 
 main = do
-    scr <- lookupEnv "TAFFY_SCREEN" >>= return . maybe 0 read
+    scr <- maybe 0 read <$> lookupEnv "TAFFY_SCREEN"
 
     pager <- pagerNew pagerCfg
 
@@ -65,7 +67,8 @@ main = do
     defaultTaffybar defaultTaffybarConfig
         { barHeight = 20
         , monitorNumber = scr
-        , startWidgets = [wss, wnd]
+        -- , startWidgets = [wss, wnd]
+        , startWidgets = [wss]
         , endWidgets = reverse $ if scr == 0
             then [mpris, vol, cpu, mem, battery, clock, tray]
             else [clock]
